@@ -554,7 +554,17 @@ func (e *Echo) StartTLS(address string, certFile, keyFile string) (err error) {
 		return errors.New("invalid tls configuration")
 	}
 	s := e.TLSServer
-	s.TLSConfig = new(tls.Config)
+	s.TLSConfig = &tls.Config{
+		MinVersion:               tls.VersionTLS12,
+		CurvePreferences:         []tls.CurveID{tls.CurveP521, tls.CurveP384, tls.CurveP256},
+		PreferServerCipherSuites: true,
+		CipherSuites: []uint16{
+			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+			tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_RSA_WITH_AES_256_CBC_SHA,
+		},
+	}
 	s.TLSConfig.Certificates = make([]tls.Certificate, 1)
 	s.TLSConfig.Certificates[0], err = tls.LoadX509KeyPair(certFile, keyFile)
 	if err != nil {
@@ -566,7 +576,17 @@ func (e *Echo) StartTLS(address string, certFile, keyFile string) (err error) {
 // StartAutoTLS starts an HTTPS server using certificates automatically installed from https://letsencrypt.org.
 func (e *Echo) StartAutoTLS(address string) error {
 	s := e.TLSServer
-	s.TLSConfig = new(tls.Config)
+	s.TLSConfig = &tls.Config{
+		MinVersion:               tls.VersionTLS12,
+		CurvePreferences:         []tls.CurveID{tls.CurveP521, tls.CurveP384, tls.CurveP256},
+		PreferServerCipherSuites: true,
+		CipherSuites: []uint16{
+			tls.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA,
+			tls.TLS_RSA_WITH_AES_256_GCM_SHA384,
+			tls.TLS_RSA_WITH_AES_256_CBC_SHA,
+		},
+	}
 	s.TLSConfig.GetCertificate = e.AutoTLSManager.GetCertificate
 	return e.startTLS(address)
 }
